@@ -82,12 +82,22 @@
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: auto; /* Allow scrolling if content overflows */
         }
 
         #caloriesLog {
             font-size: 1.2em;
             margin-top: 20px;
             text-align: center;
+            color: #FFD700; /* Gold color for better visibility */
+        }
+
+        .estimate-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 </head>
@@ -105,6 +115,11 @@
         <input type="file" accept="image/*" id="imageInput" onchange="uploadPhoto()" style="display: none;">
         <button class="button" onclick="document.getElementById('imageInput').click();">Upload from Camera Roll</button>
         <button class="button" onclick="takePhoto()">Take Photo</button>
+        
+        <div class="estimate-container">
+            <button class="button" id="estimateButton" onclick="estimateCalories()">Estimate Calories</button>
+        </div>
+
         <p id="caloriesLog"></p>
     </div>
 
@@ -112,6 +127,7 @@
         const consumerKey = '735c89eaf27e473baf5589c77fdd3cee'; // Your Client ID
         const consumerSecret = '26a3d04f97dd41f68bab3d124a3dc4b9'; // Your Client Secret
         let dailyCalories = 0;
+        let uploadedFile = null;
 
         function startApp() {
             document.getElementById('landingPage').classList.add('hidden');
@@ -120,11 +136,7 @@
 
         function uploadPhoto() {
             const fileInput = document.getElementById('imageInput');
-            const file = fileInput.files[0];
-
-            if (file) {
-                estimateCalories(file);
-            }
+            uploadedFile = fileInput.files[0]; // Store the uploaded file
         }
 
         function takePhoto() {
@@ -133,10 +145,15 @@
             fileInput.click();
         }
 
-        async function estimateCalories(file) {
+        async function estimateCalories() {
+            if (!uploadedFile) {
+                alert('Please upload a photo first.');
+                return;
+            }
+
             try {
                 const formData = new FormData();
-                formData.append('image', file);
+                formData.append('image', uploadedFile);
 
                 const apiUrl = 'https://platform.fatsecret.com/rest/server.api';
 
@@ -153,6 +170,7 @@
                 }
 
                 const data = await response.json();
+                // Simulate getting calories from the response
                 const estimatedCalories = Math.floor(Math.random() * 500 + 100); // Replace with actual value from API response
 
                 alert(`Estimated Calories: ${estimatedCalories} kcal`);
