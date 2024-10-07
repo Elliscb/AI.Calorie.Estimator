@@ -128,8 +128,9 @@
         }
 
         function takePhoto() {
-            document.getElementById('imageInput').setAttribute('capture', 'camera');
-            document.getElementById('imageInput').click();
+            const fileInput = document.getElementById('imageInput');
+            fileInput.setAttribute('capture', 'camera'); // This allows taking a photo
+            fileInput.click();
         }
 
         async function estimateCalories(file) {
