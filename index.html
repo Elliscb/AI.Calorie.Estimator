@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Estimator and Tracker AI</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #200;
+            color: white;
+            overflow: hidden;
+        }
+
+        .landing-page, .main-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            animation: fadeIn 2s ease-in;
+        }
+
+        h1 {
+            font-size: 3em;
+            text-align: center;
+            color: #FF4D4D;
+        }
+
+        .button {
+            background-color: #FF4D4D;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .floating {
+            position: absolute;
+            animation: floatingShapes 6s infinite alternate ease-in-out;
+        }
+
+        @keyframes floatingShapes {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-30px); }
+        }
+
+        .floating1 { top: 20%; left: 10%; width: 50px; height: 50px; background-color: #FF8080; border-radius: 50%; }
+        .floating2 { top: 50%; left: 70%; width: 75px; height: 75px; background-color: #FF3333; border-radius: 50%; }
+        .floating3 { top: 80%; left: 30%; width: 100px; height: 100px; background-color: #FF6666; border-radius: 50%; }
+
+        .dark-mode {
+            background-color: #111;
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-page" id="landingPage">
+        <h1>Calorie Estimator and Tracker AI</h1>
+        <button class="button" onclick="startApp()">Start</button>
+        <div class="floating floating1"></div>
+        <div class="floating floating2"></div>
+        <div class="floating floating3"></div>
+    </div>
+
+    <div class="main-page hidden" id="mainPage">
+        <h1>Upload or Take a Photo</h1>
+        <input type="file" accept="image/*" capture="camera" id="imageInput" onchange="uploadPhoto()">
+        <button class="button" onclick="estimateCalories()">Estimate Calories</button>
+        <p id="caloriesLog"></p>
+    </div>
+
+    <script>
+        const consumerKey = '735c89eaf27e473baf5589c77fdd3cee'; // Your Client ID
+        const consumerSecret = '26a3d04f97dd41f68bab3d124a3dc4b9'; // Your Client Secret
+        let dailyCalories = 0;
+
+        function startApp() {
+            document.getElementById('landingPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.remove('hidden');
+        }
+
+        function uploadPhoto() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                // Automatically call estimateCalories after photo upload
+                estimateCalories(file);
+            }
+        }
+
+        async function estimateCalories(file) {
+            try {
+                // Create a FormData object to send the image
+                const formData = new FormData();
+                formData.append('image', file);
+
+                // Example endpoint URL for FatSecret (please adjust according to API documentation)
+                const apiUrl = 'https://platform.fatsecret.com/rest/server.api';
+
+                // Set up request options
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${consumerKey}:${consumerSecret}`,
+                    },
+                    body: formData
+                });
+
+                // Check if the request was successful
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                // Parse the JSON response
+                const data = await response.json();
+
+                // Simulate getting calories from the response
+                const estimatedCalories = Math.floor(Math.random() * 500 + 100); // Replace with actual value from API response
+
+                alert(`Estimated Calories: ${estimatedCalories} kcal`);
+
+                // Log calories to daily total
+                logCalories(estimatedCalories);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+                alert('Error estimating calories. Please try again.');
+            }
+        }
+
+        function logCalories(calories = 0) {
+            dailyCalories += calories;
+            document.getElementById('caloriesLog').innerText = `Total Calories Today: ${dailyCalories} kcal`;
+        }
+    </script>
+</body>
+</html>
